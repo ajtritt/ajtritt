@@ -1,0 +1,35 @@
+StrictHostKeyChecking no
+
+Host sdm
+HostName gpint107.nersc.gov
+User ajtritt
+
+Host gpint207
+HostName gpint207.nersc.gov
+User ajtritt
+
+Host sdm
+HostName gpint107.nersc.gov
+User ajtritt
+
+Host dtn03
+HostName dtn03.nersc.gov
+User ajtritt
+
+Host dtn04
+HostName dtn04.nersc.gov
+
+Host edison
+HostName edison.nersc.gov
+User ajtritt
+
+Host cori
+HostName cori.nersc.gov
+User ajtritt
+
+Host isambard
+HostName  isambard.gw4.ac.uk
+User  br-train46
+
+
+ServerAliveInterval 100

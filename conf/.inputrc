@@ -1,0 +1,15 @@
+#C-j: next-history
+#C-k: previous-history
+#"\C-\M-h": backward-word
+#"\C-\M-l": forward-word
+#C-h: backward-char
+#C-l: forward-char
+set editing-mode vi
+set keymap vi-command
+# remaps for when in command mode should go here
+set keymap vi-insert
+# remaps for when in insert mode should go here
+"ff": vi-movement-mode
+
+
+#set show-mode-in-prompt on
