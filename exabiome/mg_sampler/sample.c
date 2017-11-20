@@ -1,13 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "sample.h"
 
-
-typedef struct NODE {
-    struct NODE * left;
-    struct NODE * right;
-    int node_id;
-    double branch_len;
-} NODE;
 
 typedef struct tdist {
     int* id;
@@ -79,7 +73,7 @@ int main() {
 
     leaf_distance(&ROOT);
     printf("Done computing total distances\n");
-    printf("A = %.3f\n", cum_dist[0]);   // A = 2.200
-    printf("B = %.3f\n", cum_dist[1]);   // B = 2.300
-    printf("C = %.3f\n", cum_dist[2]);   // C = 3.500
+    printf("A = %.3f, should be 2.200\n", cum_dist[0]);   // A = 2.200
+    printf("B = %.3f, should be 2.300\n", cum_dist[1]);   // B = 2.300
+    printf("C = %.3f, should be 3.500\n", cum_dist[2]);   // C = 3.500
 }
