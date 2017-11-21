@@ -4,6 +4,10 @@
 #include "sample.h"
 
 
+typedef struct TREE {
+    NODE * root;
+    int nleaves;
+} TREE;
 
 char *readFile(char *fileName) {
     FILE *file = fopen(fileName, "r");
@@ -23,68 +27,71 @@ char *readFile(char *fileName) {
         }
         code[n++] = (char)c;
     }
-
     code[n] = '\0';
-
     return code;
 }
 
-int nleaves;
+TREE * read_node(char ** nwk_ptr) {
+    char * nwk = *nwk_ptr;
 
-NODE* read_node(char * nwk, int * idx) {
-    char *name;
-    char *blen;
-    size_t name_n = 0;
-    size_t blen_n = 0;
+    char *name = malloc(256), *blen = malloc(256);
+    size_t name_n = 0, blen_n = 0;
+
+    NODE * root = (NODE *) malloc(sizeof(NODE));
+    int nleaves = 0;
 
     int read_blen = 0;
-
-    name = malloc(100);
-    blen = malloc(100);
-
-    NODE * ret = (NODE *) malloc(sizeof(NODE));
-
-    while (nwk[*idx] != '\0') {
-        if (nwk[*idx] == '(') { // left parentheses -->
-            (*idx)++;
-            ret->left = read_node(nwk, idx);
+    char c = *nwk;
+    while (c != '\0') {
+        if (c == '(') { // read left node
+            nwk++;
+            TREE * subtree = read_node(&nwk);
+            root->left = subtree->root;
+            nleaves += subtree->nleaves;
         }
-        else if (nwk[*idx] == ')') { // right parentheses --> done reading branch length
+        else if (c == ')') { // done reading branch length
             blen[blen_n] = '\0';
-            ret->blen = atof(blen);
+            root->blen = atof(blen);
             read_blen = 0;
-            (*idx)++;
+            nwk++;
             break;
-       } else if (nwk[*idx] == ','){ // comma --> add branch length to ret
-            if (read_blen){
+       } else if (c == ','){
+            if (read_blen){ // add branch length to ret
                 blen[blen_n] = '\0';
-                ret->blen = atof(blen);
-            } else {
-                (*idx)++;
-                ret->right = read_node(nwk, idx);
+                root->blen = atof(blen);
+            } else {       // read right node
+                nwk++;
+                TREE * subtree = read_node(&nwk);
+                root->right = subtree->root;
+                nleaves += subtree->nleaves;
             }
             break;
-        } else if (nwk[*idx] == ':') {  // colon --> finished reading contents of node, next up is branch length
+        } else if (c == ':') {  // read branch length
             if (name_n > 0){   // we were reading a leaf node
                 name[name_n] = '\0';
-                nleaves++;
-                ret->name = name;
+                nleaves = 1;
+                root->name = name;
             }
             read_blen = 1;
-            (*idx)++;
-        } else {
+            nwk++;
+        } else {           // reading branch lenght or name
             if (read_blen) {
-                blen[blen_n++] = nwk[*idx];
+                blen[blen_n++] = c;
             } else {
-                name[name_n++] = nwk[*idx];
+                name[name_n++] = c;
             }
-            (*idx)++;
+            nwk++;
         }
+        c = *nwk;
     }
+    (*nwk_ptr) = nwk;
+    TREE * ret = (TREE *) malloc(sizeof(TREE));
+    ret->root = root;
+    ret->nleaves = nleaves;
     return ret;
 }
 
-void print_leaves(NODE* node){
+void print_leaves(NODE * node){
     if (!node->left){
         printf("%s:%.3f\n", node->name, node->blen);
     } else {
@@ -95,13 +102,9 @@ void print_leaves(NODE* node){
 
 int main(){
 
-    //FILE *file = fopen(fileName, "r");
-    nleaves = 0;
-    char * tree = (char*) malloc(26*sizeof(char));
-    strcpy(tree, "(C:1.0,(B:0.3,A:0.2):0.5)\0");
-    int idx = 0;
-    int * idx_ptr = &idx;
-    NODE * root = read_node(tree, idx_ptr);
+    char * nwk = "(C:1.0,(B:0.3,A:0.2):0.5)\0";
+    TREE * tree = read_node(&nwk);
+    NODE * root = tree->root;
     printf("Finished reading root, printing leaves\n");
     printf("Should print\nC:1.000\nB:0.300\nA:0.200\n");
     printf("----------\n");
