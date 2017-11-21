@@ -3,33 +3,11 @@
 #include <string.h>
 #include "sample.h"
 
-
 typedef struct TREE {
     NODE * root;
     int nleaves;
+    char ** names;
 } TREE;
-
-char *readFile(char *fileName) {
-    FILE *file = fopen(fileName, "r");
-    char *code;
-    size_t n = 0;
-    int c;
-
-    if (file == NULL) return NULL; //could not open file
-    fseek(file, 0, SEEK_END);
-    long f_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    code = malloc(f_size);
-
-    while ((c = fgetc(file)) != EOF) {
-        if (c == 10 || c == 32 || c == 9) {
-            continue;
-        }
-        code[n++] = (char)c;
-    }
-    code[n] = '\0';
-    return code;
-}
 
 TREE * read_node(char ** nwk_ptr) {
     char * nwk = *nwk_ptr;
@@ -91,9 +69,32 @@ TREE * read_node(char ** nwk_ptr) {
     return ret;
 }
 
+void add_ids_rec(NODE * node, char ** names, int * id){
+    if (!node->left){
+        names[*id] = node->name;
+        node->node_id = *id;
+        (*id)++;
+    } else {
+        add_ids_rec(node->left, names, id);
+        add_ids_rec(node->right, names, id);
+    }
+}
+
+void add_ids(TREE * tree){
+    int id_ctr = 0;
+    add_ids_rec(tree->root, tree->names, &id_ctr);
+}
+
+TREE * read_tree(char * nwk){
+    TREE * ret = read_node(&nwk);
+    ret->names = (char**)malloc(ret->nleaves*sizeof(char*));
+    add_ids(ret);
+    return ret;
+}
+
 void print_leaves(NODE * node){
     if (!node->left){
-        printf("%s:%.3f\n", node->name, node->blen);
+        printf("%s:%.3f id = %d\n", node->name, node->blen, node->node_id);
     } else {
         print_leaves(node->left);
         print_leaves(node->right);
@@ -104,7 +105,23 @@ int main(){
 
     char * nwk = "(C:1.0,(B:0.3,A:0.2):0.5)\0";
     TREE * tree = read_node(&nwk);
+    tree->names = (char**)malloc(tree->nleaves*sizeof(char*));
     NODE * root = tree->root;
+    int id_ctr = 0;
+    add_ids_rec(root, tree->names, &id_ctr);
+    printf("Finished reading root, printing leaves\n");
+    printf("Should print\nC:1.000\nB:0.300\nA:0.200\n");
+    printf("----------\n");
+    print_leaves(root);
+    printf("----------\n");
+    printf("should be C: %s\n", root->left->name);
+    printf("should be B: %s\n", root->right->left->name);
+    printf("should be A: %s\n", root->right->right->name);
+
+    printf("\n");
+
+    printf("Test wrapper function\n");
+    tree = read_tree(nwk);
     printf("Finished reading root, printing leaves\n");
     printf("Should print\nC:1.000\nB:0.300\nA:0.200\n");
     printf("----------\n");
