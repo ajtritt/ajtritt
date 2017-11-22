@@ -1,28 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <string.h>
 
-typedef struct NODE {
+#define INTERNAL_NODE -1
+
+struct NODE {
     struct NODE * left;
     struct NODE * right;
     int node_id;
     double blen;
     char* name;
-} NODE;
+};
 
-typedef struct TREE {
-    NODE * root;
+struct TREE {
+    struct NODE * root;
     int nleaves;
     char ** names;
-} TREE;
+};
 
-TREE * read_node(char ** nwk_ptr) {
+struct TREE * read_node_rec(char ** nwk_ptr, int * id) {
     char * nwk = *nwk_ptr;
-
     char *name = malloc(256), *blen = malloc(256);
     size_t name_n = 0, blen_n = 0;
 
-    NODE * root = (NODE *) malloc(sizeof(NODE));
+    struct NODE * root = (struct NODE *) malloc(sizeof(struct NODE));
+    root->left = NULL;
+    root->right = NULL;
+    root->node_id = -1;
     int nleaves = 0;
 
     int read_blen = 0;
@@ -30,11 +35,10 @@ TREE * read_node(char ** nwk_ptr) {
     while (c != '\0') {
         if (c == '(') { // read left node
             nwk++;
-            TREE * subtree = read_node(&nwk);
+            struct TREE * subtree = read_node_rec(&nwk, id);
             root->left = subtree->root;
             nleaves += subtree->nleaves;
-        }
-        else if (c == ')') { // done reading branch length
+        } else if (c == ')') { // done reading branch length
             blen[blen_n] = '\0';
             root->blen = atof(blen);
             read_blen = 0;
@@ -44,18 +48,19 @@ TREE * read_node(char ** nwk_ptr) {
             if (read_blen){ // add branch length to ret
                 blen[blen_n] = '\0';
                 root->blen = atof(blen);
+                break;
             } else {       // read right node
                 nwk++;
-                TREE * subtree = read_node(&nwk);
+                struct TREE * subtree = read_node_rec(&nwk, id);
                 root->right = subtree->root;
                 nleaves += subtree->nleaves;
             }
-            break;
         } else if (c == ':') {  // read branch length
             if (name_n > 0){   // we were reading a leaf node
                 name[name_n] = '\0';
                 nleaves = 1;
                 root->name = name;
+                root->node_id = (*id)++;
             }
             read_blen = 1;
             nwk++;
@@ -70,43 +75,41 @@ TREE * read_node(char ** nwk_ptr) {
         c = *nwk;
     }
     (*nwk_ptr) = nwk;
-    TREE * ret = (TREE *) malloc(sizeof(TREE));
+    struct TREE * ret = (struct TREE *) malloc(sizeof(struct TREE));
     ret->root = root;
     ret->nleaves = nleaves;
     free(blen);
     return ret;
 }
 
-void add_ids_rec(NODE * node, char ** names, int * id){
-    if (!node->left){
-        names[*id] = node->name;
-        node->node_id = *id;
-        (*id)++;
-    } else {
-        node->node_id = -1;
-        add_ids_rec(node->left, names, id);
-        add_ids_rec(node->right, names, id);
-    }
-}
-
-void add_ids(TREE * tree){
-    int id_ctr = 0;
-    printf("Adding IDs\n");
-    printf("root id = %d\n", tree->root->node_id);
-    add_ids_rec(tree->root, tree->names, &id_ctr);
-}
-
-TREE * read_tree(char * nwk){
-    TREE * ret = read_node(&nwk);
-    ret->names = (char**)malloc(ret->nleaves*sizeof(char*));
-    add_ids(ret);
+struct TREE * read_node(char * nwk) {
+    int id = 0;
+    struct TREE * ret = read_node_rec(&nwk, &id);
     return ret;
 }
 
-void print_leaves(NODE * node){
+void get_names(struct NODE * node, char ** names){
+    if (!node->left){
+        names[node->node_id] = node->name;
+    } else {
+        node->node_id = -1;
+        get_names(node->left, names);
+        get_names(node->right, names);
+    }
+}
+
+struct TREE * read_tree(char * nwk){
+    struct TREE * ret = read_node(nwk);
+    ret->names = (char**)malloc(ret->nleaves*sizeof(char*));
+    get_names(ret->root, ret->names);
+    return ret;
+}
+
+void print_leaves(struct NODE * node){
     if (!node->left){
         printf("%s:%.3f id = %d\n", node->name, node->blen, node->node_id);
     } else {
+        printf("internode: blen = %0.3f\n", node->blen);
         print_leaves(node->left);
         print_leaves(node->right);
     }
@@ -118,16 +121,10 @@ typedef struct tdist {
     int len;
 } tdist;
 
-tdist* leaf_distance(NODE * a, double * cum_dist) {
+tdist* leaf_distance(struct NODE * a, double * cum_dist) {
 
     tdist* ret = (tdist*) malloc(sizeof(tdist));
-    if (a->node_id > -1){
-        ret->id = (int*) malloc(sizeof(int));
-        ret->dist = (double*) malloc(sizeof(int));
-        ret->id[0] = a->node_id;
-        ret->dist[0] = a->blen;
-        ret->len = 1;
-    } else {
+    if (a->node_id == INTERNAL_NODE){
         tdist* l_dist;
         tdist* r_dist;
         l_dist = leaf_distance(a->left, cum_dist);
@@ -145,7 +142,6 @@ tdist* leaf_distance(NODE * a, double * cum_dist) {
             ret->dist[i+l_dist->len] = r_dist->dist[i] + a->blen;
         }
         // tally distances
-        printf("tallying distances\n");
         int j;
         double dist_ij;
         for (i = 0; i < l_dist->len; i++) {
@@ -157,13 +153,18 @@ tdist* leaf_distance(NODE * a, double * cum_dist) {
         }
         free(l_dist);
         free(r_dist);
+    } else {
+        ret->id = (int*) malloc(sizeof(int));
+        ret->dist = (double*) malloc(sizeof(int));
+        ret->id[0] = a->node_id;
+        ret->dist[0] = a->blen;
+        ret->len = 1;
     }
     return ret;
 }
 
-double * compute_total_distances(TREE * tree) {
-    double * ret = (double *) malloc(tree->nleaves*sizeof(double));
-    printf("Computing distances for %d leaves\n", tree->nleaves);
+double * compute_total_distances(struct TREE * tree) {
+    double * ret = (double *) malloc((tree->nleaves)*sizeof(double));
     int i;
     for (i = 0; i < tree->nleaves; i++){
         ret[i] = 0.0;
@@ -173,7 +174,7 @@ double * compute_total_distances(TREE * tree) {
 }
 
 
-TREE * read_nwk_tree(char *fileName) {
+struct TREE * read_nwk_tree(char *fileName) {
     FILE *file = fopen(fileName, "r");
     char *code;
     size_t n = 0;
@@ -192,7 +193,6 @@ TREE * read_nwk_tree(char *fileName) {
         code[n++] = (char)c;
     }
     code[n] = '\0';
-    printf("Read the following newick string: %s\n", code);
     return read_tree(code);
 }
 
@@ -203,13 +203,42 @@ int main(int argc, char ** argv) {
         return -1;
     }
 
-    printf("Found %d args\n", argc);
-    TREE * tree = read_nwk_tree(argv[1]);
-    printf("root id = %d\n", tree->root->node_id);
-    print_leaves(tree->root);
-    double * distances = compute_total_distances(tree);
+    printf("Reading a second time\n");
+    struct TREE * tree2 = read_nwk_tree(argv[1]);
+    struct NODE * root2 = tree2->root;
+    //printf("Finished reading root, printing leaves\n");
+    //printf("Should print\ninternode: blen = 0.000\nC:1.000\ninternode: blen = 0.500\nB:0.300\nA:0.200\n");
+    //printf("----------\n");
+    //print_leaves(root2);
+    //printf("----------\n");
+
+    printf("Computing distances on tree2 (%d leaves)\n", tree2->nleaves);
+    double * dist = (double*) malloc(sizeof(double)*tree2->nleaves);
     int i;
-    for (i = 0; i < tree->nleaves; i++){
-        printf("%s %.3f\n", tree->names[i], distances[i]);
+    for (i = 0; i < tree2->nleaves; i++)
+        dist[i] = 0.0;
+    leaf_distance(root2, dist);
+    //printf("Should print\nLeaf C: 3.500\nLeaf B: 2.300\nLeaf A: 2.200\n");
+    //printf("----------\n");
+    //for (i = 0; i < tree2->nleaves; i++)
+    //    printf("Leaf %s: %0.6f\n", tree2->names[i], dist[i]);
+
+    double sum = 0.0, m2 = 0.0, mean = 0.0;
+    double d1, d2;
+    for (i = 0; i < tree2->nleaves; i++){
+        sum += dist[i];
+        d1 = dist[i] - mean;
+        mean += d1/((double) (i+1));
+        d2 = dist[i] - mean;
+        m2 += d1*d2;
     }
+    double var = m2/((double) (tree2->nleaves-1));
+    double sd = sqrt(var);
+    printf("mean = %0.6f, var=%0.6f, sd=%0.6f\n", mean, var, sd);
+
+    for (i = 0; i < tree2->nleaves; i++){
+        dist[i] = (dist[i] - mean)/sd;
+    }
+    for (i = 0; i < tree2->nleaves; i++)
+        printf("Leaf %s: %0.6f\n", tree2->names[i], dist[i]);
 }
