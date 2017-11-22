@@ -83,6 +83,7 @@ void add_ids_rec(NODE * node, char ** names, int * id){
         node->node_id = *id;
         (*id)++;
     } else {
+        node->node_id = -1;
         add_ids_rec(node->left, names, id);
         add_ids_rec(node->right, names, id);
     }
@@ -90,6 +91,8 @@ void add_ids_rec(NODE * node, char ** names, int * id){
 
 void add_ids(TREE * tree){
     int id_ctr = 0;
+    printf("Adding IDs\n");
+    printf("root id = %d\n", tree->root->node_id);
     add_ids_rec(tree->root, tree->names, &id_ctr);
 }
 
@@ -142,6 +145,7 @@ tdist* leaf_distance(NODE * a, double * cum_dist) {
             ret->dist[i+l_dist->len] = r_dist->dist[i] + a->blen;
         }
         // tally distances
+        printf("tallying distances\n");
         int j;
         double dist_ij;
         for (i = 0; i < l_dist->len; i++) {
@@ -159,6 +163,7 @@ tdist* leaf_distance(NODE * a, double * cum_dist) {
 
 double * compute_total_distances(TREE * tree) {
     double * ret = (double *) malloc(tree->nleaves*sizeof(double));
+    printf("Computing distances for %d leaves\n", tree->nleaves);
     int i;
     for (i = 0; i < tree->nleaves; i++){
         ret[i] = 0.0;
