@@ -196,10 +196,6 @@ struct TREE * read_nwk_tree(char *fileName) {
     return read_tree(code);
 }
 
-double random_zero_one(){
-    return 0.5;
-}
-
 int binsearch(double * weights, int l, int r, double val){
     if (l == r)
         return l;
@@ -212,51 +208,37 @@ int binsearch(double * weights, int l, int r, double val){
 }
 
 int sample(double * weights, int len) {
-    double U = random_zero_one();
+    double U = (double) rand()/RAND_MAX;
     U *= weights[len-1];
-    int idx = binsearch(weights, 0, len, U);
-    return len-1;
+    return binsearch(weights, 0, len, U);
 }
 
 void shift_weights(double * cum, int idx, int len) {
     int i;
-    double w = cum[idx];
+    double w = -cum[idx];
     if (idx > 0)
-        w -= cum[idx-1];
-    for (i = idx; i < len-1; i++){
-        cum[i] = cum[i+1] - w;
-    }
+        w += cum[idx-1]; // weight of idx
+    if (len > 1)
+        w += cum[len-1] - cum[len-2]; // weight of last element
+    for (i = idx; i < len-1; i++)
+        cum[i] = cum[i] + w;
     cum[len-1] = -1.0;
 }
 
-void remove_id(int * ids, int idx, int len){
-    int tmp = ids[idx];
-    int i;
-    for (i = idx; i < len-1; i++)
-        ids[i] = ids[i+1];
-    ids[len-1] = tmp;
-}
-
-
 int main(int argc, char ** argv) {
 
-    if (argc != 2) {
-        printf("Usage: sample_tree in.nwk\n");
+    if (argc != 3) {
+        printf("Usage: sample_tree in.nwk n_samples\n");
         return -1;
     }
 
     printf("Reading a second time\n");
     struct TREE * tree2 = read_nwk_tree(argv[1]);
     int nleaves = tree2->nleaves;
-    int nsamples = 10;
+    int nsamples = atoi(argv[2]);
     struct NODE * root2 = tree2->root;
-    //printf("Finished reading root, printing leaves\n");
-    //printf("Should print\ninternode: blen = 0.000\nC:1.000\ninternode: blen = 0.500\nB:0.300\nA:0.200\n");
-    //printf("----------\n");
-    //print_leaves(root2);
-    //printf("----------\n");
 
-    printf("Computing distances on tree2 (%d leaves)\n", nleaves);
+    printf("Computing distances on tree (%d leaves)\n", nleaves);
     double * weights = (double*) malloc(sizeof(double)*nleaves);
     int i;
     for (i = 0; i < nleaves; i++)
@@ -268,9 +250,6 @@ int main(int argc, char ** argv) {
         sum += weights[i];
         cum_weights[i] = sum;
     }
-    for (i = 0; i < nleaves; i++){
-        cum_weights[i] = cum_weights[i]/sum;
-    }
 
     int * node_ids = (int*) malloc(nleaves*sizeof(int));
     for (i = 0; i < nleaves; i++){
@@ -278,45 +257,21 @@ int main(int argc, char ** argv) {
     }
     int idx;
     int rem_leaves = nleaves;
-    double tmp;
+    double U;
+    int tmp;
+    printf("Randomly sampling %d leaves\n", nsamples);
     for (i = 0; i < nsamples; i++){
-        idx = sample(cum_weights, rem_leaves);
-        samples[i] = idx;
-        shift_weights(cum_weights, idx, rem_leaves);
-        remove_id(node_ids, idx, rem_leaves);
+        U = cum_weights[rem_leaves-1]*rand()/RAND_MAX;  // draw random number
+        idx = binsearch(cum_weights, 0, rem_leaves, U); // get index
+        shift_weights(cum_weights, idx, rem_leaves);    // update weights
+        tmp = node_ids[idx];
+        node_ids[idx] = node_ids[rem_leaves-1];
+        node_ids[rem_leaves] = tmp;
         rem_leaves--;
     }
-
-    /*
-    All FUNCTIONS HAVE BEEN TESTED UP TO HERE.
-    */
 
     printf("printing samples\n");
     for (i = rem_leaves; i < nleaves; i++){
         printf("%s\n", tree2->names[node_ids[i]]);
     }
-
-    //printf("Should print\nLeaf C: 3.500\nLeaf B: 2.300\nLeaf A: 2.200\n");
-    //printf("----------\n");
-    //for (i = 0; i < tree2->nleaves; i++)
-    //    printf("Leaf %s: %0.6f\n", tree2->names[i], weights[i]);
-
-    //double sum = 0.0, m2 = 0.0, mean = 0.0;
-    //double d1, d2;
-    //for (i = 0; i < tree2->nleaves; i++){
-    //    sum += weights[i];
-    //    d1 = weights[i] - mean;
-    //    mean += d1/((double) (i+1));
-    //    d2 = weights[i] - mean;
-    //    m2 += d1*d2;
-    //}
-    //double var = m2/((double) (tree2->nleaves-1));
-    //double sd = sqrt(var);
-    //printf("mean = %0.6f, var=%0.6f, sd=%0.6f\n", mean, var, sd);
-
-    //for (i = 0; i < tree2->nleaves; i++){
-    //    weights[i] = (weights[i] - mean)/sd;
-    //}
-    //for (i = 0; i < tree2->nleaves; i++)
-    //    printf("Leaf %s: %0.6f\n", tree2->names[i], weights[i]);
 }
