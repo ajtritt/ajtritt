@@ -149,6 +149,10 @@ int main(int argc, char ** argv) {
     int * id = &i;
     printf("Computing distances on tree (%d leaves)\n", nleaves);
     read_tree(&code, curr_dist, weights, names, id);
+    printf("#found the following leaves\n");
+    for (i = 0; i < nleaves; i++) {
+        printf("#%s\n", names[i]);
+    }
 
     // compute cumulative weights
     double * cum_weights = (double*) malloc(sizeof(double)*nleaves);

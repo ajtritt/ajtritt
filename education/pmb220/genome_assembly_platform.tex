@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{scrartcl}
+
+\usepackage[colorlinks = true, urlcolor = blue]{hyperref}
+\usepackage{tikz}
+\usepackage[margin=0.9in]{geometry}
+\newcommand{\termicon}{\includegraphics[scale=0.25]{terminal}\thinspace}
+\setkomafont{disposition}{\normalfont\bfseries}
+\renewcommand{\thesection}{}% Remove section references...
+
+\title{\emph{De Novo} Genome Assembly using Short Reads}
+\author{}
+\date{}
+
+\begin{document}
+  \maketitle
+
+\section*{Platform}
+Exercises for this laboratory will be carried out on a virtual machine running
+Ubuntu. Ubuntu is an open source distribution of the Linux operating system.
+The majority of bioinformatics tools are written on and developed to run on
+Unix-like platforms, such as Linux or Mac OS X, and are not available for
+Windows platforms. 
+
+To run the virtual machine, you will use the program VirtualBox, which can be
+downloaded at the following website: \url{https://www.virtualbox.org/wiki/Downloads}
+
+The virtual machine image has been prebuilt with the necessary software. The
+virtual machine image can be downloaded from the following link:
+\url{https://drive.google.com/file/d/0BxoXt7fkRSWvVGo3eUdQRXNyb0U}
+
+Once you have downloaded VirtualBox and the virtual machine image, you will
+need to set up the virtual machine within VirtualBox. To do so, click on ``New''
+at the top of the VirtualBox Manager, and follow the walk through instructions
+to set up the virtual machine. When you get to the VM Name and OS Type step,
+set the Operating System to be ``Linux'' and the Version to be ``Ubuntu'' (do not
+select ``Ubuntu 64 bit''). Name the image “genome-assembly”. The next step will be
+for Memory. I suggest setting this to 1024 MB. Next you select the Virtual Hard
+Disk. Make sure the the box for “Start-up Disk” is checked, and select the
+option “Use existing hard disk”. The dropdown box should be empty. To add a
+disk to this, click on the folder icon (with a green arrow) to the left of the
+dropdown box, and locate the virtual machine image you just downloaded.
+
+Now that you have your virtual machine setup, you can boot it up. From the
+VirtualBox Manager, double-click on the machine ``genome-assembly'' to boot the
+machine.  Once it has completed booting, you will need to login. The username
+is \texttt{ubuntu} and the password is \texttt{reverse}. 
+
+When you are signed in, you will need to open Terminal, the command-line
+interface. This is where all your work will be carried out. You can open
+Terminal by clicking on the icon \termicon               on the left panel. It is highly recommended
+that you maximize the screen once you have it opened. This will make it much
+easier to read the output of programs you will run. 
+
+Although it is not necessary, installing the Guest Additions is recommended.
+This will allow you to display the virtual machine full screen. To do so, click
+the ``Devices'' tab at the top of the virtual machine screen, and select the
+option ``Install Guest Additions''. The installer will launch automatically and
+prompt you. Select ``Run'' and when prompted for a password, enter ``reverse'' and
+select ``Authenticate''. A Terminal screen will pop and print the progress of the
+installer to the screen. When the installation is complete, hit “Return” to
+close the window. For the Guest Additions to take effect, you will need to
+restart the virtual machine. To do so, click on the power-button icon on the
+upper right corner of the screen and select ``Shut Down'', and select ``Restart''.
+Once the machine restarts, log back in and you will now be able to enter full
+screen mode (with Ctrl-F or Cmd-F), and increase the window size to your
+preference. 
+\end{document}
