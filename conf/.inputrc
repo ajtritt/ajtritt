@@ -9,7 +9,7 @@ set keymap vi-command
 # remaps for when in command mode should go here
 set keymap vi-insert
 # remaps for when in insert mode should go here
-"ff": vi-movement-mode
+"jj": vi-movement-mode
 
 
 #set show-mode-in-prompt on
