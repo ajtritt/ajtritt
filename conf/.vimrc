@@ -26,6 +26,7 @@ au BufRead,BufNewFile *.upc set filetype=c
 au! Syntax cuda source ~/.vim/syntax/cuda.vim
 au FileType c,cpp,java,cuda,perl set mps+==:;
 au FileType cpp,java set mps+=<:>
+au FileType json set ts=2
 hi Comment ctermfg=grey
 autocmd BufNewFile,BufRead *.json set ft=javascript
 set expandtab
@@ -45,7 +46,7 @@ noremap } ]
 "nmap l <nop>
 "map <esc> <nop>
 "leave insert mode by jj
-imap ff <ESC>
+imap jj <ESC>
 nmap rw vepbyw
 nmap rl Vpyy
 map <C-c> :noh<CR>
@@ -59,4 +60,4 @@ highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
 
 " automatically remove trailing whitespace in Python files
-autocmd BufWritePre *.c,*.py,*.rst %s/\s\+$//e
+autocmd BufWritePre *.c,*.py,*.rst,*.json,*.cpp,*.yml,*.yaml %s/\s\+$//e
