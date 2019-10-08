@@ -1,3 +1,6 @@
+
+cd `dirname $0`
+
 cp -r .gitconfig .inputrc .tmux .tmux.conf .vimrc $HOME
 
 bash_config="$HOME/.bash_config"
@@ -10,7 +13,10 @@ cp bash/* ~/.bash_config/
 
 tmpfile=$(mktemp /tmp/ajtritt.XXXXXX)
 
-echo "for sh in $bash_config/*; do source \$sh done" > $tmpfile
+echo "for sh in $bash_config/*; do source \$sh; done" > $tmpfile
 cat $HOME/.bash_profile >> $tmpfile
+echo "" >> $tmpfile
 cp $tmpfile $HOME/.bash_profile
 rm $tmpfile
+
+cd -

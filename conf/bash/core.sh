@@ -51,7 +51,7 @@ fi
 
 
 
-host="lm"
+host=`basename \`hostname\` .lbl.gov`
 PS1="\[\033[01;32m\]$host\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\$ "
 unset color_prompt force_color_prompt
 
@@ -65,7 +65,7 @@ xterm*|rxvt*)
 esac
 
 # enable color support of ls and also add handy aliases
-alias ls='ls -G'
+alias ls='ls --color=auto -G'
 
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -76,6 +76,7 @@ alias di='diff'
 #export LSCOLORS="exfxcxdxbxegedabagacad"
 export CLICOLOR=1
 export LSCOLORS=ExGxBxDxCxegedabagaced
+export LS_COLORS="di=1;34:ln=1;36:so=32:pi=33:ex=1;32:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 
 
 umask 0022
