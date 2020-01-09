@@ -1,8 +1,0 @@
-#!/bin/bash
-pid=`ps aux | grep jupyter-lab | grep -v grep | awk '{print $2}'`
-if [ -n "$pid" ]; then
-    echo "Killing $pid"
-    kill $pid
-else
-    echo "No Jupyter process found"
-fi
