@@ -1,6 +1,7 @@
 alias tl='tmux ls'
 alias ta='tmux attach -t'
 alias tn='tmux new -s'
+alias ca='source activate'
 
 function findgrep ()
 {

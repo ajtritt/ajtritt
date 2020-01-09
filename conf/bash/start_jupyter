@@ -1,0 +1,7 @@
+#!/bin/bash
+
+LAB="$HOME/.jupyter/lab"
+log="$LAB/log"
+touch $log
+cd $HOME/projects
+jupyter lab > $log 2>&1 &
