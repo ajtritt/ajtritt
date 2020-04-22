@@ -3,6 +3,8 @@ alias ta='tmux attach -t'
 alias tn='tmux new -s'
 alias ca='source activate'
 
+alias today=`date "+%a %b %d, %Y"`
+
 function findgrep ()
 {
     local dir=${1:?"Missing directory"};
