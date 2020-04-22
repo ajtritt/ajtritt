@@ -1,7 +1,7 @@
 
 cd `dirname $0`
 
-cp -r .gitconfig .inputrc .tmux .tmux.conf .vimrc $HOME
+cp -r .gitconfig .inputrc .tmux .tmux.conf .vimrc .vim_bash_env.sh $HOME
 
 bash_config="$HOME/.bash_config"
 if [ ! -d "$bash_config" ]; then
