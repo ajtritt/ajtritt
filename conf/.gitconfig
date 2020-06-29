@@ -136,3 +136,5 @@
   autoupdate = true
 [push]
         default = matching
+[pager]
+	branch = false
