@@ -6,7 +6,7 @@ function start_jupyter ()
     local log="$LAB/log"
     touch $log
     cd $HOME/projects
-    jupyter lab > $log 2>&1 &
+    jupyter lab $@ > $log 2>&1 &
 }
 
 function kill_jupyter ()

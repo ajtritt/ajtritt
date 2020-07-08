@@ -5,6 +5,8 @@ alias ca='source activate'
 
 alias today='date "+%a %b %d, %Y"'
 
+alias seed='python -c "import time; print(int(time.time()*1000) % (2**32-1))";'
+
 function findgrep ()
 {
     local dir=${1:?"Missing directory"};
@@ -18,13 +20,6 @@ function colnames ()
     local path=${1:?"Missing CSV"};
     local delim=${2:-","};
     head -n1 $path | tr $delim '\n' | nl
-}
-
-function start_jupyter ()
-{
-    tmux new-session -d -s jupyter -n run
-    tmux send-keys -t jupyter:run "cd ~/projects" Enter
-    tmux send-keys -t jupyter:run "jupyter lab" Enter
 }
 
 function transpos ()
