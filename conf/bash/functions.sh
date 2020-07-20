@@ -1,8 +1,9 @@
 alias tl='tmux ls'
 alias ta='tmux attach -t'
 alias tn='tmux new -s'
-alias ca='source activate'
+alias ca='conda activate'
 alias cl='conda env list'
+alias cr='conda env remove --all --name'
 
 alias today='date "+%a %b %d, %Y"'
 
