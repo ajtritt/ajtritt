@@ -8,11 +8,8 @@ function new_env()
 
     conda create -y -n $envname python=$pyvers
     conda activate $envname
-    conda install -y -n $envname -c clawpack -c conda-forge hdf5-parallel
-    conda install -y -n $envname -c conda-forge mpich
-    conda install -y -n $envname -c conda-forge mpi4py
-    conda install -y -n $envname -c conda-forge gxx_linux-64
-    CC=mpicc HDF5_MPI="ON" pip install --no-binary=h5py h5py
+
+    install_h5py_parallel $envname
 
     for pkg in $@; do
         pip install $pkg
@@ -20,4 +17,17 @@ function new_env()
 
     conda deactivate
     echo "Done building conda environment $envname"
+}
+
+function install_h5py_parallel()
+{
+    local envname=${1:?"Please provide environment name"}
+    shift
+
+    conda activate $envname
+    conda install -y -n $envname -c clawpack -c conda-forge hdf5-parallel
+    conda install -y -n $envname -c conda-forge mpich
+    conda install -y -n $envname -c conda-forge mpi4py
+    conda install -y -n $envname -c conda-forge gxx_linux-64
+    CC=mpicc HDF5_MPI="ON" pip install --no-binary=h5py h5py
 }

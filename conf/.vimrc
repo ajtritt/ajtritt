@@ -61,3 +61,4 @@ match ExtraWhitespace /\s\+$/
 
 " automatically remove trailing whitespace in Python files
 autocmd BufWritePre *.c,*.py,*.rst,*.json,*.cpp,*.yml,*.yaml,*.tex %s/\s\+$//e
+set backspace=indent,eol,start
