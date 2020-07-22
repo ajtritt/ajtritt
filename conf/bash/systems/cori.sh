@@ -1,2 +1,2 @@
-alias sqme=`squeue -u ajtritt`
-alias cscratch=`cd $CSCRATCH`
+alias sqme="squeue -u ajtritt"
+alias cscratch="cd $CSCRATCH"
