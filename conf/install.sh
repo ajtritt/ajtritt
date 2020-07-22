@@ -1,7 +1,10 @@
 
 cd `dirname $0`
 
-cp -r .gitconfig .inputrc .tmux .tmux.conf .vimrc .vim_bash_env.sh $HOME
+for conf in .gitconfig .inputrc .tmux .tmux.conf .vimrc .vim_bash_env.sh; do
+    echo "Copying $conf"
+    cp -r $conf $HOME
+done
 
 BASH_CONF="$HOME/.bash_config"
 if [ ! -d "$BASH_CONF" ]; then
@@ -26,11 +29,20 @@ if [ $# -gt 0 ]; then
 fi
 
 tmpfile=$(mktemp /tmp/ajtritt.XXXXXX)
+MD5=`command -v md5sum || command -v md5`
+line="for sh in $BASH_CONF/*; do source \$sh; done"
+PROFILE=$HOME/.bash_profile
 
-echo "for sh in $BASH_CONF/*; do source \$sh; done" > $tmpfile
-cat $HOME/.bash_profile >> $tmpfile
-echo "" >> $tmpfile
-cp $tmpfile $HOME/.bash_profile
-rm $tmpfile
+expected=`echo $line | $MD5`
+received=`head -n 1 $PROFILE | $MD5`
+
+if [ "$expected" != "$received" ]; then
+    echo "adding line to $PROFILE"
+    echo $line > $tmpfile
+    cat $PROFILE >> $tmpfile
+    echo "" >> $tmpfile
+    cp $tmpfile $PROFILE
+    rm $tmpfile
+fi
 
 cd -
