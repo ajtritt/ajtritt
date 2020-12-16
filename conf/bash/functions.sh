@@ -9,12 +9,26 @@ alias today='date "+%a %b %d, %Y"'
 
 alias seed='python -c "import time; print(int(time.time()*1000) % (2**32-1))";'
 
+alias abspath='realpath'
+alias relpath='realpath --relative-to=.'
+
 function findgrep ()
 {
     local dir=${1:?"Missing directory"};
     local wc=${2:?"Missing wildcard pattern"};
     local pat=${3:?"Missing pattern to grep for"};
-    find $dir -name "$wc" -exec grep -Hn $pat {} \;
+    find $dir -name "$wc" -exec grep --color=auto -Hn $pat {} \;
+}
+
+function findpy ()
+{
+    if [ "$#" == "1"  ]; then
+        findgrep . "*.py" $1
+    elif [ "$#" == "2"  ]; then
+        findgrep $1 "*.py" $2
+    else
+        echo "Usage: findgrep <PATTERN> or findgrep <DIRECTORY> <PATTERN>"
+    fi
 }
 
 function colnames ()
