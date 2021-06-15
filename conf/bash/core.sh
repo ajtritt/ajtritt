@@ -91,6 +91,7 @@ umask 0022
 alias resource="source $HOME/.profile"
 
 alias ll="ls -l"
+alias llh="ls -l -h"
 
 alias ipyspark="IPYTHON=1 pyspark"
 
