@@ -12,6 +12,13 @@ alias seed='python -c "import time; print(int(time.time()*1000) % (2**32-1))";'
 alias abspath='realpath'
 alias relpath='realpath --relative-to=.'
 
+function li ()
+{
+    local num=${1:?"Missing line number"};
+    local path=${2:?"Missing file path"};
+    sed -n ${num}p $path
+}
+
 function findgrep ()
 {
     local dir=${1:?"Missing directory"};
