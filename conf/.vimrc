@@ -1,3 +1,24 @@
+" BEGIN code for vim-plug
+" begin automatically install vim-plug
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+" end autmatically install vim-plug
+"
+" Plugins will be downloaded under the specified directory.
+call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
+
+" Declare the list of plugins.
+Plug 'tpope/vim-sensible'
+Plug 'junegunn/seoul256.vim'
+Plug 'morhetz/gruvbox'
+
+" List ends here. Plugins become visible to Vim after this call.
+call plug#end()
+" END code for vim-plug
+
 set nocompatible
 set cursorline
 syntax on
@@ -19,8 +40,9 @@ autocmd InsertEnter * set timeoutlen=1000
 autocmd InsertLeave * set timeoutlen=50
 " END no more holding down keys
 
-"set background=dark " this line will make everything look like easter egg puke
-colorscheme peachpuff
+set background=dark " this line will make everything look like easter egg puke
+
+colorscheme gruvbox
 au BufRead,BufNewFile *.cu set filetype=cuda
 au BufRead,BufNewFile *.upc set filetype=c
 au! Syntax cuda source ~/.vim/syntax/cuda.vim
