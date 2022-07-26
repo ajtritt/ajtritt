@@ -4,6 +4,7 @@ alias tn='tmux new -s'
 alias ca='conda activate'
 alias cl='conda env list'
 alias cr='conda env remove --all --name'
+alias alert="printf '\a'"
 
 alias today='date "+%a %b %d, %Y"'
 

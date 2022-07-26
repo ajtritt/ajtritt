@@ -1,3 +1,4 @@
+alias switch='conda deactivate; conda activate'
 
 function new_env() 
 {
