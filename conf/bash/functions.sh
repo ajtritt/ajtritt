@@ -1,10 +1,47 @@
 alias tl='tmux ls'
 alias ta='tmux attach -t'
-alias tn='tmux new -s'
-alias ca='conda activate'
-alias cl='conda env list'
+
+function tn ()
+{
+    if [ $# -eq 1  ]; then
+        tmux new -s $1
+    else
+        tmux new
+    fi
+}
+
+function tk ()
+{
+    echo -n "Are you sure you want me to kill the tmux server? [Y/n] "
+    read conf
+    if [ "$conf" == "Y" ]; then
+        echo "Killing tmux server"
+        tmux kill-server
+    elif [ "$conf" == "n" ]; then
+        echo "Okay then, I will do nothing"
+    else
+        echo "Unrecognized argument: '$conf'. Doing nothing"
+    fi
+}
+
+
+function check_python ()
+{
+    # If I'm on a NERSC system, make sure the Python module is loaded
+    if [ `hostname | grep -c Andrews-MB14` -eq 0 ]; then
+        local PY=`module list -t 2>&1 | grep -c ^python`
+        if [ $PY -eq 0 ]; then
+            echo "Loading python module";
+            module load python
+        fi
+    fi
+}
+
+alias ca='check_python; conda activate'
+alias cl='check_python; conda env list'
 alias cr='conda env remove --all --name'
 alias alert="printf '\a'"
+alias add_env="ipython kernel install --user --name=\$CONDA_DEFAULT_ENV"
 
 alias today='date "+%a %b %d, %Y"'
 
@@ -12,6 +49,8 @@ alias seed='python -c "import time; print(int(time.time()*1000) % (2**32-1))";'
 
 alias abspath='realpath'
 alias relpath='realpath --relative-to=.'
+
+
 
 function li ()
 {
@@ -51,13 +90,13 @@ function transpos ()
 
     local path=${1:?"Missing file"};
     awk '
-    { 
+    {
         for (i=1; i<=NF; i++)  {
             a[NR,i] = $i
         }
     }
     NF>p { p = NF }
-    END {    
+    END {
         for(j=1; j<=p; j++) {
             str=a[1,j]
             for(i=2; i<=NR; i++){
