@@ -50,6 +50,13 @@ alias seed='python -c "import time; print(int(time.time()*1000) % (2**32-1))";'
 alias abspath='realpath'
 alias relpath='realpath --relative-to=.'
 
+function last_tmux () {
+    local system="perlmutter"
+    if [[ $this_host == "cori"* ]]; then
+        system="cori"
+    fi
+    ssh `cat ~/.tmux/resurrect/$system/last_host`
+}
 
 
 function li ()
