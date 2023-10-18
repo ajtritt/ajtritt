@@ -51,6 +51,12 @@ alias abspath='realpath'
 alias relpath='realpath --relative-to=.'
 
 
+function new_env() {
+    local env_name=${1:?"Missing environment name"};
+    conda install -n $env_name -c conda-forge --yes seaborn scikit-learn ipykernel
+    conda run -n $env_name ipython kernel install --user --name=$env_name
+}
+
 
 function li ()
 {
