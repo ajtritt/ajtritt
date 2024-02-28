@@ -28,7 +28,7 @@ function tk ()
 function check_python ()
 {
     # If I'm on a NERSC system, make sure the Python module is loaded
-    if [ `hostname | grep -c Andrews-MB14` -eq 0 ]; then
+    if [ `hostname | egrep -c '(Andrews-MB14|dhcp)'` -eq 0 ]; then
         local PY=`module list -t 2>&1 | grep -c ^python`
         if [ $PY -eq 0 ]; then
             echo "Loading python module";
@@ -53,7 +53,7 @@ alias relpath='realpath --relative-to=.'
 
 function new_env() {
     local env_name=${1:?"Missing environment name"};
-    conda install -n $env_name -c conda-forge --yes seaborn scikit-learn ipykernel
+    conda create -n $env_name -c conda-forge --yes seaborn scikit-learn ipykernel
     conda run -n $env_name ipython kernel install --user --name=$env_name
 }
 
