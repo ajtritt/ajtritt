@@ -123,6 +123,14 @@ institute_names = {
         'LLNL': 'Lawrence Livermore National Laboratory',
         'NREL': 'National Renewable Energy Laboratory',
         'Oakridge National Laboratory': 'Oak Ridge National Laboratory',
+        'UC Berkeley': 'University of California, Berkeley',
+        'UC San Diego':' University of California, San Diego',
+        'UC Santa Barbara':' University of California, Santa Barbara',
+        'UC Irvine':' University of California, Irvine',
+        'UCSF': 'University of California, San Francisco',
+        'UC San Francisco': 'University of California, San Francisco',
+
+
 }
 
 def norm_names(val):
