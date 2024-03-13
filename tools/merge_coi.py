@@ -122,6 +122,7 @@ institute_names = {
         'LANL': 'Los Alamos National Laboratory',
         'LLNL': 'Lawrence Livermore National Laboratory',
         'NREL': 'National Renewable Energy Laboratory',
+        'Oakridge National Laboratory': 'Oak Ridge National Laboratory',
 }
 
 def norm_names(val):
