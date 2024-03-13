@@ -111,6 +111,24 @@ if ex is not None:
         return True
     final_df = final_df[final_df.apply(keep_collab, axis=1)]
 
+
+institute_names = {
+        'PNNL': 'Pacific Northwest National Laboratory',
+        'LBNL': 'Lawrence Berkeley National Laboratory',
+        'LBL': 'Lawrence Berkeley National Laboratory',
+        'BNL': 'Brookhaven National Laboratory',
+        'ANL': 'Argonne National Laboratory',
+        'ORNL': 'Oak Ridge National Laboratory',
+        'LANL': 'Los Alamos National Laboratory',
+        'LLNL': 'Lawrence Livermore National Laboratory',
+        'NREL': 'National Renewable Energy Laboratory',
+}
+
+def norm_names(val):
+    return institute_names.get(val, val)
+
+final_df['Institution (Full Name)'] = final_df['Institution (Full Name)'].apply(norm_names)
+
 final_df.to_excel(args.out_xlsx, index=False)
 
 key_personnel = final_df[['Last (Family) Name', 'First (Given) Name']]
