@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 import os
 import sys
 import warnings
@@ -96,6 +97,8 @@ def date_cleanup(val):
 # clean up years -- some people give full dates
 final_df['Last Active \n(4-digit Year)'] = final_df['Last Active \n(4-digit Year)'].apply(date_cleanup)
 
+last_year = datetime.now().year - 4
+final_df = final_df[final_df['Last Active \n(4-digit Year)'] >= last_year]
 
 if ex is not None:
     def keep_collab(row):
@@ -113,30 +116,49 @@ if ex is not None:
 
 
 institute_names = {
-        'PNNL': 'Pacific Northwest National Laboratory',
-        'LBNL': 'Lawrence Berkeley National Laboratory',
-        'LBL': 'Lawrence Berkeley National Laboratory',
-        'BNL': 'Brookhaven National Laboratory',
-        'ANL': 'Argonne National Laboratory',
-        'ORNL': 'Oak Ridge National Laboratory',
-        'LANL': 'Los Alamos National Laboratory',
-        'LLNL': 'Lawrence Livermore National Laboratory',
-        'NREL': 'National Renewable Energy Laboratory',
-        'Oakridge National Laboratory': 'Oak Ridge National Laboratory',
-        'UC Berkeley': 'University of California, Berkeley',
-        'UC San Diego':' University of California, San Diego',
-        'UC Santa Barbara':' University of California, Santa Barbara',
-        'UC Irvine':' University of California, Irvine',
-        'UCSF': 'University of California, San Francisco',
-        'UC San Francisco': 'University of California, San Francisco',
-
-
+        'Pacific Northwest National Laboratory': 'PNNL',
+        'Lawrence Berkeley National Laboratory': ['LBNL', 'LBL'],
+        'Brookhaven National Laboratory': 'BNL',
+        'Argonne National Laboratory': 'ANL',
+        'Los Alamos National Laboratory': 'LANL',
+        'Lawrence Livermore National Laboratory': 'LLNL',
+        'National Renewable Energy Laboratory': 'NREL',
+        'Oak Ridge National Laboratory': ['ORNL', 'Oakridge National Laboratory'],
+        'University of California, Berkeley': ['UC Berkeley', 'UC-Berkeley'],
+        'University of California, San Diego':['UC San Diego', 'UC-San Diego', 'UCSD'],
+        'University of California, Santa Barbara': ['UC Santa Barbara', 'UC-Santa Barbara', 'UCSB'],
+        'University of California, Irvine': ['UC Irvine', 'UC-Irvine'],
+        'University of California, Davis': ['UC Davis', 'UC-Davis'],
+        'University of California, San Francisco': ['UCSF', 'UC San Francisco', 'UC-San Francisco'],
+        'European Organization for Nuclear Research': 'CERN',
+        'Sandia National Laboratories ': ['Sandia National Laboratory', 'SNL'],
+        'Nvidia': ['NVIDIA', 'Nvidia Inc'],
+        'King Abdullah University of Science and Technology': 'KAUST',
+        'University of Texas at Austin': ['UT Austin', 'UT', 'Texas', 'UT Austin Texas'],
+        'University of Colorado Boulder': ['CU', 'CU Boulder', 'Colorado', 'Colorado Boulder'],
+        'The University of Texas at San Antonio': 'UTSA',
 }
 
+tmp = dict()
+for k, v in institute_names.items():
+    if isinstance(v, list):
+        for alternate in v:
+            tmp[alternate] = k
+    else:
+        tmp[v] = k
+institute_names = tmp
+
 def norm_names(val):
+    val = val.strip(", ")
+    val = val.replace("/", " & ")
+    val = val.replace("univ", "Univ")
+    val = val.replace("Univ.", "University")
+    val = val.replace("Univ ", "University")
     return institute_names.get(val, val)
 
 final_df['Institution (Full Name)'] = final_df['Institution (Full Name)'].apply(norm_names)
+
+final_df['Nature of Relationship'] = final_df['Nature of Relationship'].str.lower()
 
 final_df.to_excel(args.out_xlsx, index=False)
 
