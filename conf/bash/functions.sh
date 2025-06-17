@@ -28,7 +28,7 @@ function tk ()
 function check_python ()
 {
     # If I'm on a NERSC system, make sure the Python module is loaded
-    if [ `hostname | egrep -c '(Andrews-MB14|dhcp)'` -eq 0 ]; then
+    if [ `hostname | egrep -c '(MB14|dhcp)'` -eq 0 ]; then
         local PY=`module list -t 2>&1 | grep -c ^python`
         if [ $PY -eq 0 ]; then
             echo "Loading python module";
@@ -41,7 +41,6 @@ alias ca='check_python; conda activate'
 alias cl='check_python; conda env list'
 alias cr='conda env remove --all --name'
 alias alert="printf '\a'"
-alias add_env="ipython kernel install --user --name=\$CONDA_DEFAULT_ENV"
 
 alias today='date "+%a %b %d, %Y"'
 
@@ -50,6 +49,45 @@ alias seed='python -c "import time; print(int(time.time()*1000) % (2**32-1))";'
 alias abspath='realpath'
 alias relpath='realpath --relative-to=.'
 
+
+function install_conda_env_kernel() {
+    local ENV=$CONDA_DEFAULT_ENV
+    local TARGET_ENV=""
+
+    # Check if we're in base environment
+    if [[ "$ENV" == "base" ]]; then
+        # Check if command line argument is provided
+        if [[ -n "$1" ]]; then
+            TARGET_ENV=$1
+        else
+            echo "Error: You are in the base environment."
+            echo "Please either:"
+            echo "  1. Activate the conda environment you want to add as a kernel, or"
+            echo "  2. Provide the environment name as an argument to this function"
+            return 1
+        fi
+    else
+        # We're already in a non-base environment
+        TARGET_ENV=$ENV
+    fi
+
+    # Verify that the target environment exists
+    if ! conda env list | grep -q " $TARGET_ENV "; then
+        echo "Error: Conda environment '$TARGET_ENV' does not exist."
+        return 1
+    fi
+
+    # Install the kernel
+    echo "Installing IPython kernel for conda environment: $TARGET_ENV"
+    conda run -n base ipython kernel install --user --name="$TARGET_ENV"
+
+    if [[ $? -eq 0 ]]; then
+        echo "Successfully installed kernel for $TARGET_ENV environment."
+    else
+        echo "Failed to install kernel for $TARGET_ENV environment."
+        return 1
+    fi
+}
 
 function new_env() {
     local env_name=${1:?"Missing environment name"};
