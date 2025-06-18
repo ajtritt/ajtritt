@@ -72,7 +72,7 @@ function install_conda_env_kernel() {
     fi
 
     # Verify that the target environment exists
-    if ! conda env list | grep -q " $TARGET_ENV "; then
+    if conda env list | grep -q " $TARGET_ENV "; then
         echo "Error: Conda environment '$TARGET_ENV' does not exist."
         return 1
     fi
