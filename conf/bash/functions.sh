@@ -79,7 +79,8 @@ function install_conda_env_kernel() {
 
     # Install the kernel
     echo "Installing IPython kernel for conda environment: $TARGET_ENV"
-    conda run -n base ipython kernel install --user --name="$TARGET_ENV"
+    conda install -n $TARGET_ENV --yes ipykernel
+    conda run -n $TARGET_ENV ipython kernel install --user --name="$TARGET_ENV"
 
     if [[ $? -eq 0 ]]; then
         echo "Successfully installed kernel for $TARGET_ENV environment."
