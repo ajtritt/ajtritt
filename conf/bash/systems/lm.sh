@@ -1,6 +1,9 @@
 export PATH=$PATH:$HOME/bin
 
 alias tok='2fa nersc | pbcopy'
+alias tokgh='2fa github | pbcopy'
+alias R="/usr/local/bin/r"
+alias r=""    # do thise to avoid accidentally starting R command prompt
 
 function tokpw() {
     read -r -p "Enter the passcode ${user}: " -s pw
