@@ -25,6 +25,13 @@ function tk ()
 }
 
 
+function gl()
+{
+        line_no=${1:?"Provide line number"}
+        file=${2:?"Provide file"}
+        awk "NR==$line_no" $file
+}
+
 function check_python ()
 {
     # If I'm on a NERSC system, make sure the Python module is loaded
@@ -52,10 +59,17 @@ alias relpath='realpath --relative-to=.'
 
 function last_tmux () {
     local system="perlmutter"
+    this_host=`hostname`
     if [[ $this_host == "cori"* ]]; then
         system="cori"
     fi
-    ssh `cat ~/.tmux/resurrect/$system/last_host`
+    last_host=`cat ~/.tmux/resurrect/$system/last_host`
+    if [[ $this_host == $last_host ]]; then
+        echo "$this_host is the last host, doing nothing"
+    else
+        ssh $last_host
+    fi
+
 }
 
 
@@ -68,20 +82,21 @@ function li ()
 
 function findgrep ()
 {
-    local dir=${1:?"Missing directory"};
-    local wc=${2:?"Missing wildcard pattern"};
-    local pat=${3:?"Missing pattern to grep for"};
-    find $dir -name "$wc" -exec grep --color=auto -Hn $pat {} \;
+    local dir=${1:?"Missing directory"}
+    local wc=${2:?"Missing wildcard pattern"}
+    local pat=${3:?"Missing pattern to grep for"}
+
+    find "$dir" -name "$wc" -exec grep --color=auto -Hn -e "$pat" {} +
 }
 
 function findpy ()
 {
-    if [ "$#" == "1"  ]; then
-        findgrep . "*.py" $1
-    elif [ "$#" == "2"  ]; then
-        findgrep $1 "*.py" $2
+    if [ "$#" == "1" ]; then
+        findgrep . "*.py" "$1"
+    elif [ "$#" == "2" ]; then
+        findgrep "$1" "*.py" "$2"
     else
-        echo "Usage: findgrep <PATTERN> or findgrep <DIRECTORY> <PATTERN>"
+        echo "Usage: findpy <PATTERN> or findpy <DIRECTORY> <PATTERN>"
     fi
 }
 
@@ -112,4 +127,10 @@ function transpos ()
             print str
         }
     }' $path
+}
+
+function npls()
+{
+    local npz=${1:?"Please provide the path to the NPZ file"};
+    python -c 'import numpy; import sys; print("\n".join(numpy.load(sys.argv[1])))' $npz
 }
