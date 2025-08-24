@@ -24,6 +24,22 @@ function tk ()
     fi
 }
 
+function last_tmux () {
+    local system="perlmutter"
+    this_host=`hostname`
+    if [[ $this_host == "cori"* ]]; then
+        system="cori"
+    fi
+    last_host=`cat ~/.tmux/resurrect/$system/last_host`
+    if [[ $this_host == $last_host ]]; then
+        echo "$this_host is the last host, doing nothing"
+    else
+        ssh $last_host
+    fi
+
+}
+
+alias lt="last_tmux"
 
 function gl()
 {
@@ -55,21 +71,6 @@ alias seed='python -c "import time; print(int(time.time()*1000) % (2**32-1))";'
 
 alias abspath='realpath'
 alias relpath='realpath --relative-to=.'
-
-function last_tmux () {
-    local system="perlmutter"
-    this_host=`hostname`
-    if [[ $this_host == "cori"* ]]; then
-        system="cori"
-    fi
-    last_host=`cat ~/.tmux/resurrect/$system/last_host`
-    if [[ $this_host == $last_host ]]; then
-        echo "$this_host is the last host, doing nothing"
-    else
-        ssh $last_host
-    fi
-
-}
 
 function install_conda_env_kernel() {
     local ENV=$CONDA_DEFAULT_ENV
